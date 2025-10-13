@@ -1,0 +1,355 @@
+@startuml TWSE_APP_Architecture
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "UI Layer (Presentation)" {
+    
+    package "Screens (Composables)" {
+        class LaunchScreen <<@Composable>> {
+            + viewModel: LaunchViewModel
+            + onNavigateToIndustry()
+        }
+        
+        class IndustryListScreen <<@Composable>> {
+            + viewModel: IndustryViewModel
+            + onIndustryClick(industryCode: String)
+        }
+        
+        class CompanyListScreen <<@Composable>> {
+            + viewModel: CompanyViewModel
+            + industryCode: String
+        }
+    }
+    
+    package "ViewModels" {
+        class LaunchViewModel {
+            - getCompaniesUseCase: GetCompaniesUseCase
+            - uiState: StateFlow<LaunchUiState>
+            + loadCompanies()
+        }
+        
+        class IndustryViewModel {
+            - getIndustriesUseCase: GetIndustriesUseCase
+            - uiState: StateFlow<IndustryUiState>
+            + loadIndustries()
+        }
+        
+        class CompanyViewModel {
+            - getCompaniesByIndustryUseCase: GetCompaniesByIndustryUseCase
+            - uiState: StateFlow<CompanyUiState>
+            + loadCompaniesByIndustry(industryCode: String)
+        }
+    }
+    
+    package "UI State" {
+        class LaunchUiState {
+            + isLoading: Boolean
+            + error: String?
+            + isDataReady: Boolean
+        }
+        
+        class IndustryUiState {
+            + isLoading: Boolean
+            + industries: List<Industry>
+            + error: String?
+        }
+        
+        class CompanyUiState {
+            + isLoading: Boolean
+            + companies: List<Company>
+            + error: String?
+        }
+    }
+    
+    package "Navigation" {
+        class NavGraph {
+            + LaunchRoute
+            + IndustryListRoute
+            + CompanyListRoute
+        }
+    }
+}
+
+package "Domain Layer" {
+    
+    package "Models" {
+        class Industry {
+            + code: String
+            + name: String
+            + companyCount: Int
+        }
+        
+        class Company {
+            + 出表日期: String
+            + 公司代號: String
+            + 公司名稱: String
+            + 公司簡稱: String
+            + 外國企業註冊地國: String
+            + 產業別: String
+            + 住址: String
+            + 營利事業統一編號: String
+            + 董事長: String
+            + 總經理: String
+            + 發言人: String
+            + 發言人職稱: String
+            + 代理發言人: String
+            + 總機電話: String
+            + 成立日期: String
+            + 上市日期: String
+            + 普通股每股面額: String
+            + 實收資本額: String
+            + 已發行普通股數或TDR原股發行股數: String
+            + 私募股數: String
+            + 特別股: String
+            + 編製財務報告類型: String
+            + 股票過戶機構: String
+            + 過戶電話: String
+            + 過戶地址: String
+            + 簽證會計師事務所: String
+            + 簽證會計師1: String
+            + 簽證會計師2: String
+            + 英文簡稱: String
+            + 英文通訊地址: String
+            + 傳真機號碼: String
+            + 電子郵件信箱: String
+            + 網址: String
+        }
+    }
+    
+    package "Use Cases" {
+        class GetCompaniesUseCase {
+            - repository: TwseRepository
+            + operator invoke(): Flow<Result<List<Company>>>
+        }
+        
+        class GetIndustriesUseCase {
+            - repository: TwseRepository
+            + operator invoke(): Flow<Result<List<Industry>>>
+        }
+        
+        class GetCompaniesByIndustryUseCase {
+            - repository: TwseRepository
+            + operator invoke(industryCode: String): Flow<Result<List<Company>>>
+        }
+    }
+    
+    package "Repository Interface" {
+        interface TwseRepository {
+            + getCompanies(): Flow<Result<List<Company>>>
+            + getIndustries(): Flow<Result<List<Industry>>>
+            + getCompaniesByIndustry(industryCode: String): Flow<Result<List<Company>>>
+        }
+    }
+}
+
+package "Data Layer" {
+    
+    package "Repository Implementation" {
+        class TwseRepositoryImpl {
+            - remoteDataSource: TwseRemoteDataSource
+            - localDataSource: TwseLocalDataSource
+            + getCompanies(): Flow<Result<List<Company>>>
+            + getIndustries(): Flow<Result<List<Industry>>>
+            + getCompaniesByIndustry(industryCode: String): Flow<Result<List<Company>>>
+        }
+    }
+    
+    package "Remote Data Source" {
+        interface TwseRemoteDataSource {
+            + fetchCompanies(): List<CompanyDto>
+        }
+        
+        class TwseRemoteDataSourceImpl {
+            - apiService: TwseApiService
+            + fetchCompanies(): List<CompanyDto>
+        }
+        
+        interface TwseApiService {
+            + @GET("/opendata/t187ap03_P")
+            + getCompanies(): List<CompanyDto>
+        }
+        
+        class CompanyDto {
+            + 出表日期: String
+            + 公司代號: String
+            + 公司名稱: String
+            + 公司簡稱: String
+            + 產業別: String
+            + ... (其他欄位)
+        }
+    }
+    
+    package "Local Data Source" {
+        interface TwseLocalDataSource {
+            + getCompanies(): Flow<List<CompanyEntity>>
+            + getIndustries(): Flow<List<IndustryEntity>>
+            + getCompaniesByIndustry(industryCode: String): Flow<List<CompanyEntity>>
+            + insertCompanies(companies: List<CompanyEntity>)
+            + clearAll()
+        }
+        
+        class TwseLocalDataSourceImpl {
+            - dao: TwseDao
+            + getCompanies(): Flow<List<CompanyEntity>>
+            + getIndustries(): Flow<List<IndustryEntity>>
+            + getCompaniesByIndustry(industryCode: String): Flow<List<CompanyEntity>>
+            + insertCompanies(companies: List<CompanyEntity>)
+            + clearAll()
+        }
+        
+        interface TwseDao {
+            + @Query("SELECT * FROM companies")
+            + getAllCompanies(): Flow<List<CompanyEntity>>
+            + @Query("SELECT DISTINCT 產業別 as code, 產業別 as name, COUNT(*) as companyCount FROM companies GROUP BY 產業別")
+            + getIndustries(): Flow<List<IndustryEntity>>
+            + @Query("SELECT * FROM companies WHERE 產業別 = :industryCode")
+            + getCompaniesByIndustry(industryCode: String): Flow<List<CompanyEntity>>
+            + @Insert(onConflict = OnConflictStrategy.REPLACE)
+            + insertAll(companies: List<CompanyEntity>)
+            + @Query("DELETE FROM companies")
+            + clearAll()
+        }
+        
+        class TwseDatabase {
+            + abstract companyDao(): TwseDao
+        }
+        
+        class CompanyEntity {
+            + @PrimaryKey 公司代號: String
+            + 出表日期: String
+            + 公司名稱: String
+            + 公司簡稱: String
+            + 產業別: String
+            + ... (其他欄位)
+        }
+        
+        class IndustryEntity {
+            + code: String
+            + name: String
+            + companyCount: Int
+        }
+    }
+    
+    package "Mappers" {
+        class CompanyMapper {
+            + {static} toEntity(dto: CompanyDto): CompanyEntity
+            + {static} toDomain(entity: CompanyEntity): Company
+            + {static} toDomain(dto: CompanyDto): Company
+        }
+        
+        class IndustryMapper {
+            + {static} toDomain(entity: IndustryEntity): Industry
+        }
+    }
+}
+
+package "Dependency Injection" {
+    class AppModule {
+        + provideTwseRepository()
+        + provideContext()
+    }
+    
+    class NetworkModule {
+        + provideOkHttpClient()
+        + provideRetrofit()
+        + provideTwseApiService()
+    }
+    
+    class DatabaseModule {
+        + provideTwseDatabase()
+        + provideTwseDao()
+    }
+}
+
+' Relationships - UI Layer
+LaunchScreen --> LaunchViewModel
+IndustryListScreen --> IndustryViewModel
+CompanyListScreen --> CompanyViewModel
+
+LaunchViewModel --> LaunchUiState
+IndustryViewModel --> IndustryUiState
+CompanyViewModel --> CompanyUiState
+
+LaunchViewModel --> GetCompaniesUseCase
+IndustryViewModel --> GetIndustriesUseCase
+CompanyViewModel --> GetCompaniesByIndustryUseCase
+
+' Relationships - Domain Layer
+GetCompaniesUseCase --> TwseRepository
+GetIndustriesUseCase --> TwseRepository
+GetCompaniesByIndustryUseCase --> TwseRepository
+
+GetIndustriesUseCase ..> Industry
+GetCompaniesUseCase ..> Company
+GetCompaniesByIndustryUseCase ..> Company
+
+' Relationships - Data Layer
+TwseRepository <|.. TwseRepositoryImpl
+TwseRepositoryImpl --> TwseRemoteDataSource
+TwseRepositoryImpl --> TwseLocalDataSource
+
+TwseRemoteDataSource <|.. TwseRemoteDataSourceImpl
+TwseRemoteDataSourceImpl --> TwseApiService
+TwseApiService ..> CompanyDto
+
+TwseLocalDataSource <|.. TwseLocalDataSourceImpl
+TwseLocalDataSourceImpl --> TwseDao
+TwseDao <-- TwseDatabase
+TwseDao ..> CompanyEntity
+TwseDao ..> IndustryEntity
+
+CompanyMapper ..> CompanyDto
+CompanyMapper ..> CompanyEntity
+CompanyMapper ..> Company
+IndustryMapper ..> IndustryEntity
+IndustryMapper ..> Industry
+
+TwseRepositoryImpl --> CompanyMapper
+TwseRepositoryImpl --> IndustryMapper
+
+' Relationships - DI
+AppModule ..> TwseRepositoryImpl
+NetworkModule ..> TwseApiService
+DatabaseModule ..> TwseDatabase
+
+note right of TwseRepositoryImpl
+  實作離線優先策略：
+  1. 先從 Local DB 讀取
+  2. 同時發起 API 請求
+  3. 更新 Local DB
+  4. 發送最新資料
+end note
+
+note top of TwseRepository
+  Repository Interface 放在 Domain Layer 的原因：
+  1. 依賴反轉原則 - Domain 定義介面，Data 實作
+  2. 避免循環依賴 - Domain 不依賴 Data Layer
+  3. 測試友善 - 可輕鬆 mock Repository
+  4. 業務邏輯獨立 - 不依賴技術實作細節
+end note
+
+note top of Company
+  Domain Models 放在 Domain Layer 的原因：
+  1. 純業務邏輯 - 不依賴任何框架
+  2. 可重用性 - 跨層共享，不受技術影響
+  3. 測試獨立 - 可獨立測試業務邏輯
+  4. 符合 Clean Architecture 原則
+end note
+
+note right of LaunchScreen
+  Launch 畫面流程：
+  1. 顯示 Loading 動畫
+  2. 呼叫 loadCompanies()
+  3. 資料載入完成後導航至產業別頁面
+end note
+
+note right of IndustryListScreen
+  產業別頁面：
+  1. 顯示 40 個產業類別
+  2. 每個類別顯示公司數量
+  3. 點擊後導航至公司列表頁
+end note
+
+@enduml
+
