@@ -5,12 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.hm.cursorpracticetwse.ui.launch.LaunchScreen
 import com.hm.cursorpracticetwse.ui.theme.CursorPracticeTWSETheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -21,29 +21,57 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             CursorPracticeTWSETheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    TwseApp()
                 }
             }
         }
     }
 }
 
+/**
+ * TWSE 應用程式主入口
+ * 
+ * 目前只顯示 Launch Screen
+ * 後續會加入 Navigation 來處理多個畫面
+ */
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun TwseApp() {
+    var showMainScreen by remember { mutableStateOf(false) }
+    
+    if (showMainScreen) {
+        // TODO: 實作主畫面
+        MainScreen()
+    } else {
+        LaunchScreen(
+            onNavigateToMain = {
+                showMainScreen = true
+            }
+        )
+    }
+}
+
+/**
+ * 主畫面（暫時實作）
+ * 
+ * TODO: 後續會實作完整的主畫面
+ */
+@Composable
+private fun MainScreen() {
+    // TODO: 實作主畫面內容
+    androidx.compose.material3.Text(
+        text = "主畫面 - 開發中",
+        modifier = Modifier.fillMaxSize()
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
+fun TwseAppPreview() {
     CursorPracticeTWSETheme {
-        Greeting("Android")
+        TwseApp()
     }
 }
