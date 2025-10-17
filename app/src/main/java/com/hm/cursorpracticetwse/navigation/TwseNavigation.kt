@@ -6,9 +6,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.gson.Gson
 import com.hm.cursorpracticetwse.domain.model.Company
 import com.hm.cursorpracticetwse.domain.model.Industry
+import java.net.URLEncoder
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import com.hm.cursorpracticetwse.ui.company.CompanyListScreen
+import com.hm.cursorpracticetwse.ui.company.CompanyDetailScreen
 import com.hm.cursorpracticetwse.ui.industry.IndustryCategoryScreen
 import com.hm.cursorpracticetwse.ui.launch.LaunchScreen
 
@@ -64,10 +69,31 @@ fun TwseNavigation(
                     navController.popBackStack()
                 },
                 onNavigateToCompanyDetail = { company ->
-                    // TODO: 導航到公司詳細資料畫面
-                    // navController.navigate(TwseRoute.CompanyDetail.createRoute(company))
+                    Log.d("TwseNavigation", "twse] Company Detail navigation triggered for: ${company.公司代號}")
+                    navController.navigate(TwseRoute.CompanyDetail.createRoute(company))
                 }
             )
+        }
+        
+        // Company Detail Screen
+        composable("${TwseRoute.CompanyDetail.route}/{${TwseRoute.CompanyDetail.companyArg}}") { backStackEntry ->
+            backStackEntry
+                .arguments
+                ?.getString(TwseRoute.CompanyDetail.companyArg)
+                ?.let { encodedCompanyJson ->
+                    CompanyDetailScreen(
+                        company = Gson().fromJson(
+                            URLDecoder.decode(
+                                encodedCompanyJson,
+                                StandardCharsets.UTF_8.toString()
+                            ),
+                            Company::class.java
+                        ),
+                        onNavigateBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
         }
     }
 }
@@ -105,7 +131,9 @@ sealed class TwseRoute(val route: String) {
         const val companyArg = "company"
         
         fun createRoute(company: Company): String {
-            return "$route/$company"
+            val companyJson = Gson().toJson(company)
+            val encodedJson = URLEncoder.encode(companyJson, StandardCharsets.UTF_8.toString())
+            return "$route/$encodedJson"
         }
     }
 }

@@ -64,12 +64,6 @@ object CompanyMapper {
      * @return Database Entity
      */
     fun toEntity(dto: CompanyDto): CompanyEntity {
-        Log.d("CompanyMapper", "twse] Converting DTO to Entity for company: ${dto.公司代號}")
-        Log.d("CompanyMapper", "twse] 編製財務報告類型: ${dto.編製財務報告類型}")
-        Log.d("CompanyMapper", "twse] 發言人職稱: ${dto.發言人職稱}")
-        Log.d("CompanyMapper", "twse] 代理發言人: ${dto.代理發言人}")
-        Log.d("CompanyMapper", "twse] 上市日期: ${dto.上市日期}")
-        
         return CompanyEntity(
             公司代號 = dto.公司代號,
             出表日期 = dto.出表日期,
