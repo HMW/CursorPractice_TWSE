@@ -1,5 +1,6 @@
 package com.hm.cursorpracticetwse.ui.launch
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hm.cursorpracticetwse.domain.usecase.GetCompaniesUseCase
@@ -48,8 +49,12 @@ class LaunchViewModel @Inject constructor(
      * 在 Launch Screen 顯示時自動載入必要的資料
      */
     fun initializeData() {
+        Log.d("LaunchViewModel", "twse] initializeData() called, current state: ${_uiState.value}")
         if (_uiState.value is LaunchUiState.Initial) {
+            Log.d("LaunchViewModel", "twse] Starting to load initial data...")
             loadInitialData()
+        } else {
+            Log.d("LaunchViewModel", "twse] Already loading or loaded, current state: ${_uiState.value}")
         }
     }
     
@@ -59,66 +64,58 @@ class LaunchViewModel @Inject constructor(
      * 同時載入公司資料和產業分類
      */
     private fun loadInitialData() {
+        Log.d("LaunchViewModel", "twse] loadInitialData() started")
         viewModelScope.launch {
+            Log.d("LaunchViewModel", "twse] Setting loading state to true")
             _isLoading.value = true
             _errorMessage.value = null
             
             try {
-                // 載入公司資料
+                Log.d("LaunchViewModel", "twse] Starting to fetch companies and industries...")
+                // 載入公司資料和產業分類
+                Log.d("LaunchViewModel", "twse] Use cases called, starting to collect results...")
+                
+                // 並行執行兩個請求
                 val companiesResult = getCompaniesUseCase()
                 val industriesResult = getIndustriesUseCase()
                 
-                // 等待兩個請求完成
-                var companiesLoaded = false
-                var industriesLoaded = false
-                var companies: List<com.hm.cursorpracticetwse.domain.model.Company>? = null
-                var industries: List<com.hm.cursorpracticetwse.domain.model.Industry>? = null
+                Log.d("LaunchViewModel", "twse] Companies result received: ${companiesResult.isSuccess}")
+                Log.d("LaunchViewModel", "twse] Industries result received: ${industriesResult.isSuccess}")
                 
-                // 監聽公司資料載入
-                companiesResult.collect { result ->
-                    when {
-                        result.isSuccess -> {
-                            companies = result.getOrNull()
-                            companiesLoaded = true
-                        }
-                        result.isFailure -> {
-                            _errorMessage.value = "載入公司資料失敗: ${result.exceptionOrNull()?.message}"
-                            companiesLoaded = true
-                        }
-                    }
-                    
-                    if (companiesLoaded && industriesLoaded) {
+                when {
+                    companiesResult.isSuccess && industriesResult.isSuccess -> {
+                        val companies = companiesResult.getOrNull() ?: emptyList()
+                        val industries = industriesResult.getOrNull() ?: emptyList()
+                        Log.d("LaunchViewModel", "twse] Both companies and industries loaded successfully")
+                        Log.d("LaunchViewModel", "twse] Companies count: ${companies.size}, Industries count: ${industries.size}")
                         _uiState.value = LaunchUiState.DataLoaded(
-                            companies = companies ?: emptyList(),
-                            industries = industries ?: emptyList()
+                            companies = companies,
+                            industries = industries
                         )
                         _isLoading.value = false
+                        
+                        // 自動觸發導航到主畫面
+                        Log.d("LaunchViewModel", "twse] Auto-navigating to main screen")
+                        navigateToMain()
                     }
-                }
-                
-                // 監聽產業分類載入
-                industriesResult.collect { result ->
-                    when {
-                        result.isSuccess -> {
-                            industries = result.getOrNull()
-                            industriesLoaded = true
-                        }
-                        result.isFailure -> {
-                            _errorMessage.value = "載入產業分類失敗: ${result.exceptionOrNull()?.message}"
-                            industriesLoaded = true
-                        }
+                    companiesResult.isFailure -> {
+                        val error = companiesResult.exceptionOrNull()?.message
+                        Log.e("LaunchViewModel", "twse] Companies loading failed: $error")
+                        _errorMessage.value = "載入公司資料失敗: $error"
+                        _uiState.value = LaunchUiState.Error(error ?: "載入公司資料失敗")
+                        _isLoading.value = false
                     }
-                    
-                    if (companiesLoaded && industriesLoaded) {
-                        _uiState.value = LaunchUiState.DataLoaded(
-                            companies = companies ?: emptyList(),
-                            industries = industries ?: emptyList()
-                        )
+                    industriesResult.isFailure -> {
+                        val error = industriesResult.exceptionOrNull()?.message
+                        Log.e("LaunchViewModel", "twse] Industries loading failed: $error")
+                        _errorMessage.value = "載入產業分類失敗: $error"
+                        _uiState.value = LaunchUiState.Error(error ?: "載入產業分類失敗")
                         _isLoading.value = false
                     }
                 }
                 
             } catch (e: Exception) {
+                Log.e("LaunchViewModel", "twse] Exception in loadInitialData: ${e.message}", e)
                 _uiState.value = LaunchUiState.Error(e.message ?: "未知錯誤")
                 _isLoading.value = false
                 _errorMessage.value = e.message
@@ -149,8 +146,12 @@ class LaunchViewModel @Inject constructor(
      * 當資料載入完成後調用
      */
     fun navigateToMain() {
+        Log.d("LaunchViewModel", "twse] navigateToMain() called, current state: ${_uiState.value}")
         if (_uiState.value is LaunchUiState.DataLoaded) {
+            Log.d("LaunchViewModel", "twse] Setting state to NavigateToMain")
             _uiState.value = LaunchUiState.NavigateToMain
+        } else {
+            Log.d("LaunchViewModel", "twse] Cannot navigate, current state is not DataLoaded: ${_uiState.value}")
         }
     }
 }

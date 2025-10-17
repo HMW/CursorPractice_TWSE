@@ -7,10 +7,10 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.hm.cursorpracticetwse.ui.launch.LaunchScreen
+import com.hm.cursorpracticetwse.navigation.TwseNavigation
 import com.hm.cursorpracticetwse.ui.theme.CursorPracticeTWSETheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -35,37 +35,11 @@ class MainActivity : ComponentActivity() {
 /**
  * TWSE 應用程式主入口
  * 
- * 目前只顯示 Launch Screen
- * 後續會加入 Navigation 來處理多個畫面
+ * 使用 Navigation Compose 處理所有畫面導航
  */
 @Composable
 fun TwseApp() {
-    var showMainScreen by remember { mutableStateOf(false) }
-    
-    if (showMainScreen) {
-        // TODO: 實作主畫面
-        MainScreen()
-    } else {
-        LaunchScreen(
-            onNavigateToMain = {
-                showMainScreen = true
-            }
-        )
-    }
-}
-
-/**
- * 主畫面（暫時實作）
- * 
- * TODO: 後續會實作完整的主畫面
- */
-@Composable
-private fun MainScreen() {
-    // TODO: 實作主畫面內容
-    androidx.compose.material3.Text(
-        text = "主畫面 - 開發中",
-        modifier = Modifier.fillMaxSize()
-    )
+    TwseNavigation()
 }
 
 @Preview(showBackground = true)

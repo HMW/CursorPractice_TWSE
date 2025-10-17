@@ -1,16 +1,20 @@
 package com.hm.cursorpracticetwse.domain.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
 /**
  * 產業領域模型
  * 
  * 代表台灣證券交易所的產業分類
  * 包含產業代碼、名稱和公司數量
  */
+@Parcelize
 data class Industry(
     val code: String,
     val name: String,
     val companyCount: Int
-) {
+) : Parcelable {
     
     /**
      * 取得產業顯示名稱

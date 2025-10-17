@@ -15,24 +15,24 @@ interface TwseRepository {
     /**
      * 取得所有公司資料
      * 
-     * @return Flow<Result<List<Company>>> 公司列表的結果流
+     * @return Result<List<Company>> 公司列表的結果
      */
-    suspend fun getCompanies(): Flow<Result<List<Company>>>
+    suspend fun getCompanies(): Result<List<Company>>
     
     /**
      * 取得產業分類列表
      * 
-     * @return Flow<Result<List<Industry>>> 產業列表的結果流
+     * @return Result<List<Industry>> 產業列表的結果
      */
-    suspend fun getIndustries(): Flow<Result<List<Industry>>>
+    suspend fun getIndustries(): Result<List<Industry>>
     
     /**
      * 根據產業代碼取得公司列表
      * 
      * @param industryCode 產業代碼
-     * @return Flow<Result<List<Company>>> 該產業的公司列表
+     * @return Result<List<Company>> 該產業的公司列表
      */
-    suspend fun getCompaniesByIndustry(industryCode: String): Flow<Result<List<Company>>>
+    suspend fun getCompaniesByIndustry(industryCode: String): Result<List<Company>>
     
     /**
      * 重新整理資料

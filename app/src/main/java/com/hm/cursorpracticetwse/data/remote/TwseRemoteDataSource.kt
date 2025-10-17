@@ -1,5 +1,6 @@
 package com.hm.cursorpracticetwse.data.remote
 
+import android.util.Log
 import com.hm.cursorpracticetwse.data.remote.dto.CompanyDto
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -22,9 +23,14 @@ class TwseRemoteDataSource @Inject constructor(
      * @throws Exception 當網路請求失敗時拋出例外
      */
     suspend fun fetchCompanies(): List<CompanyDto> {
+        Log.d("TwseRemoteDataSource", "twse] fetchCompanies() called")
         return try {
-            apiService.getCompanies()
+            Log.d("TwseRemoteDataSource", "twse] Calling TWSE API...")
+            val companies = apiService.getCompanies()
+            Log.d("TwseRemoteDataSource", "twse] TWSE API returned ${companies.size} companies")
+            companies
         } catch (e: Exception) {
+            Log.e("TwseRemoteDataSource", "twse] Failed to fetch companies from TWSE API", e)
             throw RemoteDataSourceException("Failed to fetch companies from TWSE API", e)
         }
     }

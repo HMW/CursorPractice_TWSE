@@ -1,5 +1,6 @@
 package com.hm.cursorpracticetwse.data.mapper
 
+import android.util.Log
 import com.hm.cursorpracticetwse.data.local.entities.CompanyEntity
 import com.hm.cursorpracticetwse.data.remote.dto.CompanyDto
 import com.hm.cursorpracticetwse.domain.model.Company
@@ -31,17 +32,17 @@ object CompanyMapper {
             董事長 = dto.董事長,
             總經理 = dto.總經理,
             發言人 = dto.發言人,
-            發言人職稱 = dto.發言人職稱,
-            代理發言人 = dto.代理發言人,
+            發言人職稱 = dto.發言人職稱 ?: "",
+            代理發言人 = dto.代理發言人 ?: "",
             總機電話 = dto.總機電話,
             成立日期 = dto.成立日期,
-            上市日期 = dto.上市日期,
+            上市日期 = dto.上市日期 ?: "",
             普通股每股面額 = dto.普通股每股面額,
             實收資本額 = dto.實收資本額,
             已發行普通股數或TDR原股發行股數 = dto.已發行普通股數或TDR原股發行股數,
             私募股數 = dto.私募股數,
             特別股 = dto.特別股,
-            編製財務報告類型 = dto.編製財務報告類型,
+            編製財務報告類型 = dto.編製財務報告類型 ?: "",
             股票過戶機構 = dto.股票過戶機構,
             過戶電話 = dto.過戶電話,
             過戶地址 = dto.過戶地址,
@@ -63,6 +64,12 @@ object CompanyMapper {
      * @return Database Entity
      */
     fun toEntity(dto: CompanyDto): CompanyEntity {
+        Log.d("CompanyMapper", "twse] Converting DTO to Entity for company: ${dto.公司代號}")
+        Log.d("CompanyMapper", "twse] 編製財務報告類型: ${dto.編製財務報告類型}")
+        Log.d("CompanyMapper", "twse] 發言人職稱: ${dto.發言人職稱}")
+        Log.d("CompanyMapper", "twse] 代理發言人: ${dto.代理發言人}")
+        Log.d("CompanyMapper", "twse] 上市日期: ${dto.上市日期}")
+        
         return CompanyEntity(
             公司代號 = dto.公司代號,
             出表日期 = dto.出表日期,
@@ -75,17 +82,17 @@ object CompanyMapper {
             董事長 = dto.董事長,
             總經理 = dto.總經理,
             發言人 = dto.發言人,
-            發言人職稱 = dto.發言人職稱,
-            代理發言人 = dto.代理發言人,
+            發言人職稱 = dto.發言人職稱 ?: "",
+            代理發言人 = dto.代理發言人 ?: "",
             總機電話 = dto.總機電話,
             成立日期 = dto.成立日期,
-            上市日期 = dto.上市日期,
+            上市日期 = dto.上市日期 ?: "",
             普通股每股面額 = dto.普通股每股面額,
             實收資本額 = dto.實收資本額,
             已發行普通股數或TDR原股發行股數 = dto.已發行普通股數或TDR原股發行股數,
             私募股數 = dto.私募股數,
             特別股 = dto.特別股,
-            編製財務報告類型 = dto.編製財務報告類型,
+            編製財務報告類型 = dto.編製財務報告類型 ?: "",
             股票過戶機構 = dto.股票過戶機構,
             過戶電話 = dto.過戶電話,
             過戶地址 = dto.過戶地址,

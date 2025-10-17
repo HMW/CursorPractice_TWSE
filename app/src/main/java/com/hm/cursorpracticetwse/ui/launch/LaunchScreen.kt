@@ -1,5 +1,6 @@
 package com.hm.cursorpracticetwse.ui.launch
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -37,16 +38,21 @@ fun LaunchScreen(
     
     // 初始化資料載入
     LaunchedEffect(Unit) {
+        Log.d("LaunchScreen", "twse] LaunchedEffect triggered, calling initializeData()")
         viewModel.initializeData()
     }
     
     // 處理導航
     LaunchedEffect(uiState) {
+        Log.d("LaunchScreen", "twse] UI State changed: $uiState")
         when (uiState) {
             is LaunchUiState.NavigateToMain -> {
+                Log.d("LaunchScreen", "twse] Navigating to main screen")
                 onNavigateToMain()
             }
-            else -> { /* 其他狀態不需要導航 */ }
+            else -> { 
+                Log.d("LaunchScreen", "twse] No navigation needed for state: $uiState")
+            }
         }
     }
     

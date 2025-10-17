@@ -2,7 +2,6 @@ package com.hm.cursorpracticetwse.domain.usecase
 
 import com.hm.cursorpracticetwse.domain.model.Company
 import com.hm.cursorpracticetwse.domain.repository.TwseRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 /**
@@ -18,9 +17,9 @@ class GetCompaniesUseCase @Inject constructor(
     /**
      * 執行取得所有公司資料
      * 
-     * @return Flow<Result<List<Company>>> 公司列表的結果流
+     * @return Result<List<Company>> 公司列表的結果
      */
-    suspend operator fun invoke(): Flow<Result<List<Company>>> {
+    suspend operator fun invoke(): Result<List<Company>> {
         return repository.getCompanies()
     }
 }

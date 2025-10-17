@@ -43,10 +43,10 @@ data class CompanyDto(
     val 發言人: String,
     
     @SerializedName("發言人職稱")
-    val 發言人職稱: String,
+    val 發言人職稱: String?,
     
     @SerializedName("代理發言人")
-    val 代理發言人: String,
+    val 代理發言人: String?,
     
     @SerializedName("總機電話")
     val 總機電話: String,
@@ -55,7 +55,7 @@ data class CompanyDto(
     val 成立日期: String,
     
     @SerializedName("上市日期")
-    val 上市日期: String,
+    val 上市日期: String?,
     
     @SerializedName("普通股每股面額")
     val 普通股每股面額: String,
@@ -73,7 +73,7 @@ data class CompanyDto(
     val 特別股: String,
     
     @SerializedName("編製財務報告類型")
-    val 編製財務報告類型: String,
+    val 編製財務報告類型: String?,
     
     @SerializedName("股票過戶機構")
     val 股票過戶機構: String,
