@@ -7,6 +7,8 @@ import androidx.room.TypeConverters
 import android.content.Context
 import com.hm.cursorpracticetwse.data.local.entities.CompanyEntity
 import com.hm.cursorpracticetwse.data.local.entities.IndustryEntity
+import com.hm.cursorpracticetwse.data.local.entities.WatchlistItemEntity
+import com.hm.cursorpracticetwse.data.local.dao.WatchlistDao
 
 /**
  * TWSE Room Database
@@ -17,9 +19,10 @@ import com.hm.cursorpracticetwse.data.local.entities.IndustryEntity
 @Database(
     entities = [
         CompanyEntity::class,
-        IndustryEntity::class
+        IndustryEntity::class,
+        WatchlistItemEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters()
@@ -31,6 +34,13 @@ abstract class TwseDatabase : RoomDatabase() {
      * @return TwseDao DAO 介面
      */
     abstract fun twseDao(): TwseDao
+    
+    /**
+     * 取得追蹤列表 DAO
+     * 
+     * @return WatchlistDao DAO 介面
+     */
+    abstract fun watchlistDao(): WatchlistDao
     
     companion object {
         const val DATABASE_NAME = "twse_database"

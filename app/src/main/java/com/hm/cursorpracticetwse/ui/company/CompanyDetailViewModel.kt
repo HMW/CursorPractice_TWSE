@@ -3,6 +3,9 @@ package com.hm.cursorpracticetwse.ui.company
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hm.cursorpracticetwse.domain.model.Company
+import com.hm.cursorpracticetwse.domain.usecase.AddToWatchlistUseCase
+import com.hm.cursorpracticetwse.domain.usecase.RemoveFromWatchlistUseCase
+import com.hm.cursorpracticetwse.domain.usecase.IsInWatchlistUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -18,7 +21,9 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class CompanyDetailViewModel @Inject constructor(
-    // TODO: 注入追蹤列表相關的 Use Case
+    private val addToWatchlistUseCase: AddToWatchlistUseCase,
+    private val removeFromWatchlistUseCase: RemoveFromWatchlistUseCase,
+    private val isInWatchlistUseCase: IsInWatchlistUseCase
 ) : ViewModel() {
     
     /**
@@ -43,9 +48,11 @@ class CompanyDetailViewModel @Inject constructor(
             _uiState.value = CompanyDetailUiState.Loading
             
             try {
-                // TODO: 檢查是否在追蹤列表中
-                // val isInWatchlist = checkIfInWatchlist(company)
-                // _isWatched.value = isInWatchlist
+                // 檢查是否在追蹤列表中
+                val isInWatchlistResult = isInWatchlistUseCase(company.公司代號)
+                if (isInWatchlistResult.isSuccess) {
+                    _isWatched.value = isInWatchlistResult.getOrNull() ?: false
+                }
                 
                 _uiState.value = CompanyDetailUiState.Success(company)
             } catch (e: Exception) {
@@ -70,20 +77,25 @@ class CompanyDetailViewModel @Inject constructor(
     fun confirmWatchlistToggle() {
         viewModelScope.launch {
             try {
-                val currentWatched = _isWatched.value
-                
-                if (currentWatched) {
-                    // TODO: 從追蹤列表中移除
-                    // removeFromWatchlist()
-                    _isWatched.value = false
-                } else {
-                    // TODO: 加入追蹤列表
-                    // addToWatchlist()
-                    _isWatched.value = true
-                }
-                
                 val currentState = _uiState.value
                 if (currentState is CompanyDetailUiState.Success) {
+                    val company = currentState.company
+                    val currentWatched = _isWatched.value
+                    
+                    if (currentWatched) {
+                        // 從追蹤列表中移除
+                        val result = removeFromWatchlistUseCase(company.公司代號)
+                        if (result.isSuccess) {
+                            _isWatched.value = false
+                        }
+                    } else {
+                        // 加入追蹤列表
+                        val result = addToWatchlistUseCase(company)
+                        if (result.isSuccess) {
+                            _isWatched.value = true
+                        }
+                    }
+                    
                     _uiState.value = currentState.copy(showWatchlistDialog = false)
                 }
             } catch (e: Exception) {

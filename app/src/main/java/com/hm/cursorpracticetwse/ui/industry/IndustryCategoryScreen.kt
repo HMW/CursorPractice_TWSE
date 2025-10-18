@@ -30,6 +30,7 @@ import com.hm.cursorpracticetwse.ui.theme.CursorPracticeTWSETheme
 @Composable
 fun IndustryCategoryScreen(
     onNavigateToCompanyList: (Industry) -> Unit,
+    onNavigateToWatchlist: () -> Unit,
     viewModel: IndustryCategoryViewModel = hiltViewModel()
 ) {
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
@@ -57,6 +58,11 @@ fun IndustryCategoryScreen(
                 )
             },
             actions = {
+                IconButton(
+                    onClick = onNavigateToWatchlist
+                ) {
+                    Text("★")
+                }
                 IconButton(
                     onClick = { viewModel.refreshData() }
                 ) {

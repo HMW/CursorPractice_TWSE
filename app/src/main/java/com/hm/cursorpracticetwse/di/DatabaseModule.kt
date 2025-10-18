@@ -4,6 +4,9 @@ import android.content.Context
 import com.hm.cursorpracticetwse.data.local.TwseDao
 import com.hm.cursorpracticetwse.data.local.TwseDatabase
 import com.hm.cursorpracticetwse.data.local.TwseLocalDataSource
+import com.hm.cursorpracticetwse.data.local.dao.WatchlistDao
+import com.hm.cursorpracticetwse.data.local.WatchlistLocalDataSource
+import com.hm.cursorpracticetwse.data.local.WatchlistLocalDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -49,5 +52,25 @@ object DatabaseModule {
     @Singleton
     fun provideTwseLocalDataSource(dao: TwseDao): TwseLocalDataSource {
         return TwseLocalDataSource(dao)
+    }
+    
+    /**
+     * 提供 Watchlist DAO
+     * 從 Database 取得 Watchlist DAO 介面
+     */
+    @Provides
+    @Singleton
+    fun provideWatchlistDao(database: TwseDatabase): WatchlistDao {
+        return database.watchlistDao()
+    }
+    
+    /**
+     * 提供 Watchlist Local Data Source
+     * 注入 Watchlist DAO 依賴
+     */
+    @Provides
+    @Singleton
+    fun provideWatchlistLocalDataSource(dao: WatchlistDao): WatchlistLocalDataSource {
+        return WatchlistLocalDataSourceImpl(dao)
     }
 }

@@ -16,6 +16,7 @@ import com.hm.cursorpracticetwse.ui.company.CompanyListScreen
 import com.hm.cursorpracticetwse.ui.company.CompanyDetailScreen
 import com.hm.cursorpracticetwse.ui.industry.IndustryCategoryScreen
 import com.hm.cursorpracticetwse.ui.launch.LaunchScreen
+import com.hm.cursorpracticetwse.ui.watchlist.WatchlistScreen
 
 /**
  * TWSE 應用程式導航
@@ -54,6 +55,25 @@ fun TwseNavigation(
                     navController.navigate(
                         TwseRoute.CompanyList.createRoute(industry)
                     )
+                },
+                onNavigateToWatchlist = {
+                    Log.d("TwseNavigation", "twse] Industry Category navigation to watchlist")
+                    navController.navigate(TwseRoute.Watchlist.route)
+                }
+            )
+        }
+        
+        // Watchlist Screen
+        composable(TwseRoute.Watchlist.route) {
+            Log.d("TwseNavigation", "twse] Watchlist Screen composable called")
+            WatchlistScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                onNavigateToCompanyDetail = { watchlistItem ->
+                    // TODO: 導航到公司詳細頁面
+                    // 需要將 WatchlistItem 轉換為 Company 或使用公司代碼查詢
+                    Log.d("TwseNavigation", "twse] Watchlist navigation to company detail: ${watchlistItem.companyCode}")
                 }
             )
         }
@@ -112,6 +132,11 @@ sealed class TwseRoute(val route: String) {
      * Industry Category Screen
      */
     object IndustryCategory : TwseRoute("industry_category")
+    
+    /**
+     * Watchlist Screen
+     */
+    object Watchlist : TwseRoute("watchlist")
     
     /**
      * Company List Screen
