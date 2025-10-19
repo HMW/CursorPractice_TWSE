@@ -17,7 +17,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.LocalContext
+import com.hm.cursorpracticetwse.utils.BrowserUtils
+import com.hm.cursorpracticetwse.utils.UrlUtils
+import com.hm.cursorpracticetwse.ui.components.SimpleWebsiteLink
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,7 +45,7 @@ fun CompanyDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isWatched by viewModel.isWatched.collectAsStateWithLifecycle()
-    val uriHandler = LocalUriHandler.current
+    val context = LocalContext.current
     
     // 初始化資料載入
     LaunchedEffect(company) {
@@ -110,16 +113,23 @@ fun CompanyDetailScreen(
             InfoCard(
                 title = "基本資料",
                 content = {
-                    InfoRow(
-                        label = "公司名稱",
-                        value = company.公司名稱,
-                        hasLink = company.網址.isNotBlank(),
-                        onLinkClick = {
-                            if (company.網址.isNotBlank()) {
-                                uriHandler.openUri(company.網址)
-                            }
-                        }
-                    )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
+                        Text(
+                            text = "公司名稱",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                        )
+                        Spacer(modifier = Modifier.height(2.dp))
+                        SimpleWebsiteLink(
+                            url = company.網址,
+                            displayText = company.公司名稱,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
                     InfoRow(label = "董事長", value = company.董事長)
                     InfoRow(label = "總經理", value = company.總經理)
                     InfoRow(label = "產業類別", value = company.getIndustryName())
@@ -239,25 +249,32 @@ private fun InfoRow(
         Spacer(modifier = Modifier.height(2.dp))
         
         if (hasLink && onLinkClick != null) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.clickable { onLinkClick() }
+            Surface(
+                modifier = Modifier
+                    .clickable { onLinkClick() }
+                    .clip(RoundedCornerShape(8.dp)),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             ) {
-                Text(
-                    text = value,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.primary,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Icon(
-                    imageVector = Icons.Default.Language,
-                    contentDescription = "公司網站",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(16.dp)
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                ) {
+                    Text(
+                        text = value,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Icon(
+                        imageVector = Icons.Default.Language,
+                        contentDescription = "公司網站",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
             }
         } else {
             Text(
