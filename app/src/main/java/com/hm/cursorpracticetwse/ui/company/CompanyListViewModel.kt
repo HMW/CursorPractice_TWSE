@@ -58,6 +58,12 @@ class CompanyListViewModel @Inject constructor(
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
     
     /**
+     * 當前產業資訊
+     */
+    private val _currentIndustry = MutableStateFlow<Industry?>(null)
+    val currentIndustry: StateFlow<Industry?> = _currentIndustry.asStateFlow()
+    
+    /**
      * 載入指定產業的公司列表
      * 
      * @param industry 產業分類
@@ -65,13 +71,14 @@ class CompanyListViewModel @Inject constructor(
     fun loadCompaniesByIndustry(industry: Industry) {
         _searchQuery.value = ""
         _filteredCompanies.value = emptyList()
+        _currentIndustry.value = industry
         
         viewModelScope.launch {
             _isLoading.value = true
             _errorMessage.value = null
             
             try {
-                Log.d("CompanyListViewModel", "twse] Starting to fetch companies for industry: ${industry.code}")
+                Log.d("CompanyListViewModel", "twse] Starting to load companies for industry: ${industry.code}")
                 val result = getCompaniesByIndustryUseCase(industry.code)
                 
                 _isLoading.value = false
@@ -80,6 +87,21 @@ class CompanyListViewModel @Inject constructor(
                     result.isSuccess -> {
                         val companies = result.getOrNull() ?: emptyList()
                         Log.d("CompanyListViewModel", "twse] Companies loaded successfully, count: ${companies.size}")
+                        
+                        // 從公司資料中獲取產業名稱
+                        val industryName = if (companies.isNotEmpty()) {
+                            companies.first().getIndustryName()
+                        } else {
+                            industry.name // 如果沒有公司，使用原始名稱
+                        }
+                        
+                        // 更新產業資訊，包含正確的產業名稱和公司數量
+                        val updatedIndustry = industry.copy(
+                            name = industryName,
+                            companyCount = companies.size
+                        )
+                        _currentIndustry.value = updatedIndustry
+                        
                         _uiState.value = UiState.Success(companies)
                         _filteredCompanies.value = companies
                     }

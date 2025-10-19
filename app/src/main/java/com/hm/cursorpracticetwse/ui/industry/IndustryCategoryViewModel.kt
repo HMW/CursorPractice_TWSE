@@ -73,6 +73,7 @@ class IndustryCategoryViewModel @Inject constructor(
                     result.isSuccess -> {
                         val industries = result.getOrNull() ?: emptyList()
                         Log.d("IndustryCategoryViewModel", "twse] Industries loaded successfully, count: ${industries.size}")
+                        
                         _uiState.value = UiState.Success(industries)
                         _filteredIndustries.value = industries
                     }

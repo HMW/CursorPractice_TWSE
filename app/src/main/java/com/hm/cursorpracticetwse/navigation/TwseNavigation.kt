@@ -81,7 +81,8 @@ fun TwseNavigation(
         // Company List Screen
         composable("${TwseRoute.CompanyList.route}/{${TwseRoute.CompanyList.industryArg}}") { backStackEntry ->
             val industryCode = backStackEntry.arguments?.getString(TwseRoute.CompanyList.industryArg) ?: "01"
-            val industry = Industry(industryCode, "產業分類", 0) // 名稱會在 ViewModel 中更新
+            // 創建一個臨時的 Industry 物件，ViewModel 會載入正確的資料
+            val industry = Industry(industryCode, "載入中...", 0)
             
             CompanyListScreen(
                 industry = industry,

@@ -40,6 +40,7 @@ fun CompanyListScreen(
     val filteredCompanies by viewModel.filteredCompanies.collectAsStateWithLifecycle()
     val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
     val errorMessage by viewModel.errorMessage.collectAsStateWithLifecycle()
+    val currentIndustry by viewModel.currentIndustry.collectAsStateWithLifecycle()
     
     // 載入公司資料
     LaunchedEffect(industry) {
@@ -56,12 +57,12 @@ fun CompanyListScreen(
             title = {
                 Column {
                     Text(
-                        text = industry.name,
+                        text = currentIndustry?.name ?: industry.name,
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "共 ${industry.companyCount} 家公司",
+                        text = "共 ${currentIndustry?.companyCount ?: industry.companyCount} 家公司",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
                     )
